@@ -106,8 +106,7 @@ def main():
     #Load digit 0 and digit 1 data from MNIST
     dataset = MNIST_Dataset("data")
     train_loader, test_loader = dataset.loaders(batch_size=args.batch_size)
-    closeneg_test_data = get_close_negs(test_loader)
-    closeneg_test_loader = DataLoader(closeneg_test_data, args.batch_size, shuffle=True)
+    
 
     model = MNIST_LeNet().to(device)
     model = nn.DataParallel(model)
@@ -126,7 +125,7 @@ def main():
 
     if args.eval==0:
         # Training the model        
-        trainer.train(train_loader, test_loader, closeneg_test_loader, args.lr, adjust_learning_rate, args.epochs,
+        trainer.train(train_loader, test_loader, args.lr, adjust_learning_rate, args.epochs,
             ascent_step_size=args.ascent_step_size, only_ce_epochs = args.only_ce_epochs)
 
         trainer.save(args.model_dir)
@@ -138,15 +137,8 @@ def main():
         else:
             print('Saved model not found. Cannot run evaluation.')
             exit()
-        _, pos_scores, far_neg_scores  = trainer.test(test_loader, get_auc=False)
-        _, _, close_neg_scores  = trainer.test(closeneg_test_loader, get_auc=False)
-        
-        precision_fpr03, recall_fpr03 = cal_precision_recall(pos_scores, far_neg_scores, close_neg_scores, 0.03)
-        precision_fpr05, recall_fpr05 = cal_precision_recall(pos_scores, far_neg_scores, close_neg_scores, 0.05)
-        print('Test Precision @ FPR 3% : {}, Recall @ FPR 3%: {}'.format(
-            precision_fpr03, recall_fpr03))
-        print('Test Precision @ FPR 5% : {}, Recall @ FPR 5%: {}'.format(
-            precision_fpr05, recall_fpr05))
+        score = trainer.test(test_loader, 'AUC')
+        print('Test AUC: {}'.format(score))
 
 if __name__ == '__main__':
     torch.set_printoptions(precision=5)
