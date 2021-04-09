@@ -50,19 +50,19 @@ class TorchvisionDataset(BaseADDataset):
 
 class CIFAR10_Dataset(TorchvisionDataset):
 
-    def __init__(self, root: str, normal_class=5):
+    def __init__(self, root: str, ood_class=[3, 4]):
         super().__init__(root)
 
         self.n_classes = 2  # 0: normal, 1: outlier
-        self.normal_classes = tuple([normal_class])
-        self.outlier_classes = list(range(0, 10))
-        self.outlier_classes.remove(normal_class)
+        self.outlier_classes = ood_class
+        self.normal_classes = list(set(range(10)) - set(ood_class))
+        print('normal classes are ' + str(self.normal_classes))
 
         transform = transforms.Compose([transforms.ToTensor(),
                                         transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                         std=[0.247, 0.243, 0.261])])
 
-        target_transform = transforms.Lambda(lambda x: int(x not in self.outlier_classes))
+        target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
 
         train_set = MyCIFAR10(root=self.root, train=True, download=True,
                               transform=transform, target_transform=target_transform)
