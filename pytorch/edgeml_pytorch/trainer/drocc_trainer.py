@@ -148,7 +148,6 @@ class DROCCTrainer:
         if True:
             # Evaluation based on https://openreview.net/forum?id=BJJLHbb0-
             thresh = np.percentile(scores, 20)
-            print('updated')
             y_pred = np.where(scores >= 0.5, 1, 0)
             prec, recall, test_metric, _ = precision_recall_fscore_support(
                 labels, y_pred, average="binary")

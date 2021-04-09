@@ -62,7 +62,7 @@ class CIFAR10_Dataset(TorchvisionDataset):
                                         transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                         std=[0.247, 0.243, 0.261])])
 
-        target_transform = transforms.Lambda(lambda x: int(x not in self.outlier_classes))
+        target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
 
         train_set = MyCIFAR10(root=self.root, train=True, download=True,
                               transform=transform, target_transform=target_transform)
