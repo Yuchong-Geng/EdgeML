@@ -5,7 +5,7 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import roc_auc_score, precision_recall_fscore_support
+from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, balanced_accuracy_score
 
 #trainer class for DROCC
 class DROCCTrainer:
@@ -144,14 +144,18 @@ class DROCCTrainer:
         labels, scores = zip(*label_score)
         labels = np.array(labels)
         scores = np.array(scores)
-        if metric == 'F1':
+        # if metric == 'F1':
+        if True:
             # Evaluation based on https://openreview.net/forum?id=BJJLHbb0-
             thresh = np.percentile(scores, 20)
-            y_pred = np.where(scores >= thresh, 1, 0)
+            print('updated')
+            y_pred = np.where(scores >= 0.5, 1, 0)
             prec, recall, test_metric, _ = precision_recall_fscore_support(
                 labels, y_pred, average="binary")
         if metric == 'AUC':
             test_metric = roc_auc_score(labels, scores)
+            # test_metric = balanced_accuracy_score(labels, )
+
         return test_metric
         
     
